@@ -1,0 +1,63 @@
+{
+  "status": "success",
+  "status_code": 200,
+  "search_word": "MEM",
+  "results": [
+    {
+      "word": "Social Good Action +100プロジェクト",
+      "abbreviation": "SGA +100",
+      "description": "社会課題の解決に向けた行動を促進。企業、団体、個人が協力し、持続可能な社会を目指すプロジェクト。あなたも参加して、より良い未来を共に築きましょう。",
+      "is_memword": true,
+      "source_url": "https://www.sga100.jp/"
+    },
+    {
+      "word": "Members",
+      "abbreviation": "MEM",
+      "description": "カスタマーサクセスプロデューサー。マネージャー格の管理職のこと",
+      "is_memword": true,
+      "source_url": null
+    },
+    {
+      "word": "Account Supervisor",
+      "abbreviation": "ASV",
+      "description": "アカウントスーパーバイザー。部室長各の管理職のこと",
+      "is_memword": true,
+      "source_url": "URL"
+    },
+    {
+      "word": "Customer Success Producer",
+      "abbreviation": "CSP",
+      "description": "カスタマーサクセスプロデューサー。マネージャー格の管理職のこと",
+      "is_memword": true,
+      "source_url": "URL"
+    },
+    {
+      "word": "マネージャー",
+      "abbreviation": "MG/MGR",
+      "description": "マネージャー格の管理職のこと",
+      "is_memword": false,
+      "source_url": "URL"
+    },
+    {
+      "word": "既存拡大タスクフォース",
+      "abbreviation": "K2TF",
+      "description": "",
+      "is_memword": true,
+      "source_url": null
+    },
+    {
+      "word": "データアドベンチャーカンパニー",
+      "abbreviation": "DA",
+      "description": "",
+      "is_memword": true,
+      "source_url": null
+    },
+    {
+      "word": "Associate/アソシエイト",
+      "abbreviation": "AS",
+      "description": "",
+      "is_memword": false,
+      "source_url": null
+    }
+  ]
+}
