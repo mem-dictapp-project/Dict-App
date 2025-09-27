@@ -158,9 +158,7 @@
   line-height: 1.6;
   /* margin-bottom: 16px; */
 }
-.md-modal-tags {
-  /* margin-bottom: 4px; */
-}
+
 .md-tag {
   /* display: inline-block;
   background: #e3f2fd;
@@ -212,6 +210,10 @@
   transition: all 0.2s;
   font-size: 18px;
   pointer-events: auto; /* Make buttons interactive */
+}
+
+.md-footer-btn:hover {
+  transform: scale(1.1);
 }
 
 /* --- Custom Scrollbar for the Modal --- */
@@ -281,11 +283,19 @@
   width: 32px;
   height: 32px;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+#md-show-related-btn.rotated {
+  transform: rotate(180deg);
 }
 
 #md-show-related-btn:hover {
-  /* background: #e0e0e0; */
+  transform: scale(1.1);
+}
+
+#md-show-related-btn.rotated:hover {
+  transform: rotate(180deg) scale(1.1);
 }
 
 .md-related-list {

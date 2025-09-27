@@ -29,51 +29,56 @@ const INITIAL_MODAL_MAX_HEIGHT = 200;
 // イベントデリゲーションのパターンを使用しており、ポップアップ全体で一つのリスナーを共有します。
 // これにより、要素が動的に追加・削除された場合でも、イベント処理が正しく機能します。
 translationPopup.addEventListener("click", async (event) => {
-  // 「関連用語を表示」ボタンがクリックされた場合の処理
   const showRelatedBtn = event.target.closest("#md-show-related-btn");
   if (showRelatedBtn) {
+    // console.log("--- md-show-related-btn clicked ---");
     const relatedTermsContainer = translationPopup.querySelector("#md-related-terms-container");
     const modal = translationPopup.querySelector('.md-modal');
+    const computedStyle = window.getComputedStyle(relatedTermsContainer);
+    // console.log("Initial relatedTermsContainer.style.display:", computedStyle.display);
 
-    // 関連用語コンテナが非表示の場合、表示する
-    if (relatedTermsContainer.style.display === "none") {
+    if (computedStyle.display === "none") {
+      // console.log("Action: Expanding related terms");
       const relatedTerms = translationPopup._relatedTerms;
       const allResults = translationPopup._allResults;
+      // console.log("relatedTerms:", relatedTerms);
+      // console.log("allResults:", allResults);
+
       if (relatedTerms && relatedTerms.length > 0) {
-        relatedTermsContainer.innerHTML = ""; // 既存のリストをクリア
+        relatedTermsContainer.innerHTML = ""; // Clear previous terms
         const list = document.createElement("ul");
         list.className = "md-related-list";
 
-        // 関連用語のリストを動的に生成
         relatedTerms.forEach(term => {
           const listItem = document.createElement("li");
           listItem.textContent = term.word;
           listItem.className = "md-related-item";
-          // 各リスト項目にクリックイベントを追加
           listItem.addEventListener("click", (event) => {
-            event.stopPropagation(); // 親要素へのイベント伝播を停止
-            renderPopup(term, allResults); // ポップアップ内容を更新
+            event.stopPropagation();
+            renderPopup(term, allResults)
           });
           list.appendChild(listItem);
         });
 
         relatedTermsContainer.appendChild(list);
         relatedTermsContainer.style.display = "block";
-        showRelatedBtn.style.transform = "rotate(180deg)"; // アイコンを回転
+        showRelatedBtn.classList.add("rotated");
 
-        // モーダルの高さを関連用語リストの高さ分だけ拡張
         const relatedTermsHeight = list.offsetHeight;
-        modal.style.maxHeight = `${INITIAL_MODAL_MAX_HEIGHT + relatedTermsHeight}px`;
+        const newMaxHeight = INITIAL_MODAL_MAX_HEIGHT + relatedTermsHeight;
+        // console.log("New modal maxHeight:", newMaxHeight);
+        modal.style.maxHeight = `${newMaxHeight}px`;
       }
     } else {
-      // 関連用語コンテナが表示されている場合、非表示にする
+      // console.log("Action: Collapsing related terms");
+      const newMaxHeight = INITIAL_MODAL_MAX_HEIGHT;
+      // console.log("New modal maxHeight:", newMaxHeight);
+      modal.style.maxHeight = `${newMaxHeight}px`;
       relatedTermsContainer.style.display = "none";
-      showRelatedBtn.style.transform = "rotate(0deg)"; // アイコンを元に戻す
-      modal.style.maxHeight = `${INITIAL_MODAL_MAX_HEIGHT}px`; // モーダルの高さを初期値に戻す
+      showRelatedBtn.classList.remove("rotated");
     }
   }
 
-  // 閉じるボタンがクリックされた場合の処理
   const closeBtn = event.target.closest(".md-modal-close");
   if (closeBtn) {
     hidePopup();
@@ -155,17 +160,17 @@ document.addEventListener("keydown", (event) => {
  * @returns {Promise<Array|null>} - 検索結果の配列。見つからない場合はnull。
  */
 async function getTermData(term) {
-  console.log(`[getTermData] Fetching data for term: "${term}"`);
+  // console.log(`[getTermData] Fetching data for term: "${term}"`);
   try {
     const url = chrome.runtime.getURL('terms.json');
-    console.log(`[getTermData] Fetching from URL: ${url}`);
+    // console.log(`[getTermData] Fetching from URL: ${url}`);
     const response = await fetch(url);
     if (!response.ok) {
       console.error(`[getTermData] Failed to fetch terms.json: ${response.status} ${response.statusText}`);
       return null;
     }
     const data = await response.json();
-    console.log("[getTermData] Successfully fetched and parsed terms.json:", data);
+    // console.log("[getTermData] Successfully fetched and parsed terms.json:", data);
 
     // 現在の実装では、terms.jsonからすべてのデータを返し、
     // sendTextForTranslation関数でフィルタリングしています。
@@ -175,7 +180,7 @@ async function getTermData(term) {
       return data.results;
     }
 
-    console.log(`[getTermData] No match found for term "${term}"`);
+    // console.log(`[getTermData] No match found for term "${term}"`);
     return null;
   } catch (error) {
     console.error('[getTermData] Error fetching or parsing terms data:', error);
@@ -219,7 +224,7 @@ function startTranslation(text) {
  * @param {Selection} selection - ユーザーのテキスト選択範囲。
  */
 async function sendTextForTranslation(text, selection) {
-  console.log("翻訳リクエスト:", text);
+  // console.log("翻訳リクエスト:", text);
 
   let results = await getTermData(text);
 
@@ -251,6 +256,9 @@ async function sendTextForTranslation(text, selection) {
  * @param {Array} allResults - 検索結果全体の配列。
  */
 function renderPopup(mainTerm, allResults) {
+  // console.log("--- renderPopup ---");
+  // console.log("mainTerm:", mainTerm);
+
   const modal = translationPopup.querySelector('.md-modal');
   // 関連用語クリック時にスクロール位置を一番上に戻す
   if (modal) {
@@ -282,6 +290,7 @@ function renderPopup(mainTerm, allResults) {
     relatedTerms = [originalMainResult, ...allResults.filter(t => t !== mainTerm && t !== originalMainResult)];
   }
   translationPopup._relatedTerms = relatedTerms;
+  // console.log("relatedTerms:", relatedTerms);
 
   // 関連用語リストが既に表示されている場合は、リストを再構築する
   const relatedTermsContainer = translationPopup.querySelector("#md-related-terms-container");
@@ -321,11 +330,13 @@ function renderPopup(mainTerm, allResults) {
     const showRelatedBtn = translationPopup.querySelector("#md-show-related-btn");
     if(showRelatedBtn) {
       showRelatedBtn.style.display = "block";
+      // console.log("showRelatedBtn display set to: block");
     }
   } else {
     const showRelatedBtn = translationPopup.querySelector("#md-show-related-btn");
     if(showRelatedBtn) {
       showRelatedBtn.style.display = "none";
+      // console.log("showRelatedBtn display set to: none");
     }
   }
 
@@ -395,7 +406,7 @@ function positionFooterButton() {
   if (header && content && footerCenter) {
     const headerHeight = header.offsetHeight;
     const contentHeight = content.offsetHeight;
-    const footerTop = headerHeight + contentHeight - 32;
+    const footerTop = headerHeight + contentHeight - 24;
     footerCenter.style.top = `${footerTop}px`;
     footerCenter.style.opacity = 1;
   } else if (footerCenter) {
