@@ -276,8 +276,14 @@ function renderPopup(mainTerm, allResults) {
   } else {
     tagsContainer.innerHTML = '';
   }
-  const referenceLink = translationPopup.querySelector('.md-reference-link');
-  referenceLink.href = source_url;
+  const referenceLinkContainer = translationPopup.querySelector('.md-reference-link-container');
+  if (referenceLinkContainer) {
+    if (source_url) {
+      referenceLinkContainer.innerHTML = `<a href="${source_url}" class="md-reference-link" target="_blank">参考リンク</a>`;
+    } else {
+      referenceLinkContainer.innerHTML = '';
+    }
+  }
 
   // 関連用語リストを再計算
   const originalMainResult = allResults[0];
@@ -440,7 +446,15 @@ function generatePopupHTML(word, abbreviation, description, is_memword, source_u
                 <div class="md-modal-tags">${
                   is_memword ? '<span class="md-tag">#MEM用語</span>' : ""
                 }</div>
-                <a href="${source_url}" class="md-reference-link" target="_blank">参考リンク</a>
+                <div class="md-reference-link-container">
+                ${
+                  source_url
+                    ? '<a href="' +
+                      source_url +
+                      '" class="md-reference-link" target="_blank">参考リンク</a>'
+                    : ""
+                }
+                </div>
             </div>
             <div id="md-related-terms-container"></div>
             <div class="md-footer-center">
@@ -451,9 +465,9 @@ function generatePopupHTML(word, abbreviation, description, is_memword, source_u
         </div>
         <div class="md-modal-footer">
           <div class="md-footer-float">
-            <a class="md-footer-btn" title="翻訳"><img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/></a>
-            <a class="md-footer-btn" title="共有"><img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/></a>
-            <a class="md-footer-btn" title="ヘルプ"><img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/></a>
+            <a href="https://google.com" target="_blank" class="md-footer-btn" title="翻訳"><img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/></a>
+            <a href="https://google.com" target="_blank" class="md-footer-btn" title="共有"><img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/></a>
+            <a href="https://google.com" target="_blank" class="md-footer-btn" title="ヘルプ"><img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/></a>
           </div>
         </div>
     </div>`;

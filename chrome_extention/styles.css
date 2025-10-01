@@ -284,10 +284,12 @@
   height: 32px;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-bottom: 8px;
 }
 
 #md-show-related-btn.rotated {
   transform: rotate(180deg);
+  transform-origin: 50% 45%;
 }
 
 #md-show-related-btn:hover {
