@@ -1,11 +1,54 @@
 {
   "manifest_version": 3,
-  "name": "My Simple Extension",
-  "version": "1.0",
-  "description": "A simple Chrome extension",
+  "name": "オリジナル辞書",
+  "version": "0.3",
+  "description": "選択したテキストを辞書へ問い合わせて対応する単語に変換します。",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "My Simple Extension"
+    "default_icon": {
+      "16": "images/dict_icon_16.png",
+      "48": "images/dict_icon_48.png",
+      "128": "images/dict_icon_128.png"
+    }
   },
-  "permissions": []
+  "icons": {
+    "16": "images/dict_icon_16.png",
+    "48": "images/dict_icon_48.png",
+    "128": "images/dict_icon_128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/*",
+        "terms.json"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }
