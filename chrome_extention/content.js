@@ -142,22 +142,40 @@ document.addEventListener("keydown", (event) => {
 // --- 関数定義 ---
 
 async function getTermData(term) {
-  try {
-    const url = chrome.runtime.getURL('terms.json');
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error(`Failed to fetch terms.json: ${response.status} ${response.statusText}`);
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 100; // ms
+
+  for (let i = 0; i < MAX_RETRIES; i++) {
+    try {
+      const url = chrome.runtime.getURL('terms.json');
+      const response = await fetch(url);
+
+      // 4xx, 5xx系のエラーはリトライしても成功しないので即時失敗させる
+      if (!response.ok) {
+        console.error(`[getTermData] Failed to fetch terms.json with status: ${response.status}. Aborting retries.`);
+        return null;
+      }
+
+      const data = await response.json();
+      if (data.results && data.results.length > 0) {
+        return data.results;
+      }
+      // JSONは正しいが中身が空の場合
       return null;
+
+    } catch (error) {
+      console.error(`[getTermData] Attempt ${i + 1} of ${MAX_RETRIES} failed:`, error);
+      if (i < MAX_RETRIES - 1) {
+        // 次のリトライの前に少し待機
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (i + 1)));
+      } else {
+        // すべてのリトライが失敗
+        console.error('[getTermData] All retry attempts failed.');
+        return null;
+      }
     }
-    const data = await response.json();
-    if (data.results.length > 0) {
-      return data.results;
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching or parsing terms data:', error);
-    return null;
   }
+  return null;
 }
 
 function startTranslation(text) {
