@@ -1,10 +1,16 @@
-// ポップアップが読み込まれた時の処理
 document.addEventListener("DOMContentLoaded", function () {
-  const clickBtn = document.getElementById("clickBtn");
-  const randomBtn = document.getElementById("randomBtn");
-  const timeBtn = document.getElementById("timeBtn");
-  const counter = document.getElementById("counter");
-  const message = document.getElementById("message");
+  const host = document.getElementById('root');
+  const shadowRoot = host.attachShadow({ mode: 'open' });
+
+  const template = document.getElementById('popup-template');
+  const instance = template.content.cloneNode(true);
+  shadowRoot.appendChild(instance);
+
+  const clickBtn = shadowRoot.getElementById("clickBtn");
+  const randomBtn = shadowRoot.getElementById("randomBtn");
+  const timeBtn = shadowRoot.getElementById("timeBtn");
+  const counter = shadowRoot.getElementById("counter");
+  const message = shadowRoot.getElementById("message");
 
   let clickCount = 0;
 
@@ -41,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "#98D8C8",
     ];
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    document.body.style.backgroundColor = randomColor;
+    host.style.backgroundColor = randomColor;
     message.textContent = `背景色を ${randomColor} に変更しました！`;
     message.style.color = "#333";
   });
