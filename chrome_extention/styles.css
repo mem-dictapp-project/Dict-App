@@ -1,3 +1,20 @@
+:host {
+  all: initial;
+  display: block;
+  font-family: Inter, sans-serif;
+  color: #1c1c1c;
+  line-height: 1.5;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-family: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
 /* styles.css - Floating footer and scrolling header */
 
 /* --- Selection Icon --- */
