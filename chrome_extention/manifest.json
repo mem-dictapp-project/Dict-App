@@ -31,9 +31,6 @@
       ],
       "js": [
         "content.js"
-      ],
-      "css": [
-        "styles.css"
       ]
     }
   ],
@@ -44,7 +41,8 @@
     {
       "resources": [
         "images/*",
-        "terms.json"
+        "terms.json",
+        "styles.css"
       ],
       "matches": [
         "<all_urls>"

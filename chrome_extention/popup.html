@@ -2,77 +2,40 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <style>
-        body {
-            width: 320px;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            transition: background-color 0.3s ease;
-        }
-        h1 {
-            color: #333;
-            font-size: 18px;
-            margin: 0 0 15px 0;
-            text-align: center;
-        }
-        .button-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s ease;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #randomBtn {
-            background-color: #2196F3;
-        }
-        #randomBtn:hover {
-            background-color: #1976D2;
-        }
-        #timeBtn {
-            background-color: #FF9800;
-        }
-        #timeBtn:hover {
-            background-color: #F57C00;
-        }
-        #counter {
-            font-weight: bold;
-            color: #333;
-            text-align: center;
-            margin: 10px 0;
-        }
-        #message {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            min-height: 20px;
-            margin-top: 15px;
-            transition: color 0.3s ease;
-        }
-    </style>
 </head>
 <body>
-    <h1>Interactive Extension</h1>
-    
-    <div class="button-group">
-        <button id="clickBtn">クリックカウンター</button>
-        <button id="randomBtn">背景色をランダムに変更</button>
-        <button id="timeBtn">現在時刻を表示</button>
-    </div>
-    
-    <div id="counter">クリック回数: 0</div>
-    <div id="message"></div>
+    <div id="root" style="width: 200px; height: 108px;"></div>
+
+    <template id="popup-template">
+        <div class="md-footer-float" style="margin: auto; box-shadow: none;">
+        <div class="tooltip-wrapper">
+            <a href="https://google.com" target="_blank" class="md-footer-btn">
+            <img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/>
+            </a>
+            <div class="tooltip">
+            <div class="tooltip-text">用語集を開く</div>
+            </div>
+        </div>
+        
+        <div class="tooltip-wrapper">
+            <a href="https://google.com" target="_blank" class="md-footer-btn">
+            <img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/>
+            </a>
+            <div class="tooltip">
+            <div class="tooltip-text">問い合わせ・<br>用語追加希望を送る</div>
+            </div>
+        </div>
+        
+        <div class="tooltip-wrapper">
+            <a href="https://google.com" target="_blank" class="md-footer-btn">
+            <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/>
+            </a>
+            <div class="tooltip">
+            <div class="tooltip-text">ヘルプ・使い方<br>を見る</div>
+            </div>
+          </div>
+        </div>
+    </template>
 
     <script src="popup.js"></script>
 </body>
