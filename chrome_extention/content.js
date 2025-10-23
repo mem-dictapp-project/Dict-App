@@ -30,6 +30,7 @@ selectionIcon.style.zIndex = "99999";
 selectionIcon.style.cursor = "pointer";
 selectionIcon.style.width = "32px";
 selectionIcon.style.height = "32px";
+selectionIcon.style.display = "none";
 document.body.appendChild(selectionIcon);
 
 const INITIAL_MODAL_MAX_HEIGHT = 200;
@@ -99,6 +100,7 @@ document.addEventListener("mouseup", (event) => {
       const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
       selectionIcon.style.left = `${rect.right + scrollLeft + 5}px`;
       selectionIcon.style.top = `${rect.top + scrollTop}px`;
+      selectionIcon.style.display = "block";
       selectionIcon.classList.add("visible");
       selectionIcon.dataset.selectedText = selectedText;
     } else {
@@ -420,6 +422,7 @@ function generatePopupHTML(mainTerm) {
 
 function hideIcon() {
   selectionIcon.classList.remove("visible");
+  selectionIcon.style.display = "none";
 }
 
 function hidePopup() {
