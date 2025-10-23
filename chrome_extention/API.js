@@ -60,6 +60,7 @@ async function sendMessageToGAS(message) {
 	} catch (error) {
 			console.error("エラーが発生しました:", error);
 			return null;
+			
 	}
 }
 
