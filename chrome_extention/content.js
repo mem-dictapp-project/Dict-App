@@ -4,10 +4,17 @@
 const termsJsonUrl = chrome.runtime.getURL('terms.json');
 const translationPopupHost = document.createElement("div");
 translationPopupHost.id = "md-text-translation-popup-host";
+translationPopupHost.style.all = "initial";
 translationPopupHost.style.position = "absolute";
+translationPopupHost.style.zIndex = "2147483647"; // Max z-index
 document.body.appendChild(translationPopupHost);
 
 const shadowRoot = translationPopupHost.attachShadow({ mode: 'open' });
+
+// Create a wrapper element inside the shadow DOM to act as a reset boundary
+const shadowWrapper = document.createElement('div');
+shadowWrapper.id = "md-shadow-wrapper";
+shadowRoot.appendChild(shadowWrapper);
 
 // スタイルシートを動的に読み込み、Shadow DOMに適用
 const styleUrl = chrome.runtime.getURL('styles.css');
@@ -16,12 +23,12 @@ fetch(styleUrl)
   .then(css => {
     const style = document.createElement('style');
     style.textContent = css;
-    shadowRoot.appendChild(style);
+    shadowRoot.insertBefore(style, shadowWrapper); // Insert style before the wrapper
   });
 
 const translationPopup = document.createElement("div");
 translationPopup.id = "md-text-translation-popup";
-shadowRoot.appendChild(translationPopup);
+shadowWrapper.appendChild(translationPopup);
 
 const selectionIcon = document.createElement("img");
 selectionIcon.id = "md-selection-icon";
