@@ -1,6 +1,7 @@
 // content.js
 
 // --- グローバル変数と要素の初期化 ---
+const termsJsonUrl = chrome.runtime.getURL('terms.json');
 const translationPopupHost = document.createElement("div");
 translationPopupHost.id = "md-text-translation-popup-host";
 translationPopupHost.style.position = "absolute";
@@ -99,7 +100,7 @@ document.addEventListener("mouseup", (event) => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
       selectionIcon.style.left = `${rect.right + scrollLeft + 5}px`;
-      selectionIcon.style.top = `${rect.top + scrollTop}px`;
+      selectionIcon.style.top = `${rect.top + scrollTop - 32}px`;
       selectionIcon.style.display = "block";
       selectionIcon.classList.add("visible");
       selectionIcon.dataset.selectedText = selectedText;
@@ -149,8 +150,7 @@ async function getTermData(term) {
 
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
-      const url = chrome.runtime.getURL('terms.json');
-      const response = await fetch(url);
+      const response = await fetch(termsJsonUrl);
 
       // 4xx, 5xx系のエラーはリトライしても成功しないので即時失敗させる
       if (!response.ok) {
