@@ -236,16 +236,16 @@
 
 /* --- Custom Scrollbar for the Modal --- */
 .md-modal::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
   padding: 0 10px 0 0;
 }
 .md-modal::-webkit-scrollbar-track {
   background: transparent;
-  margin: 40px 0 55px;
+  margin: 8px 0 8px;
 
 }
 .md-modal::-webkit-scrollbar-thumb {
-  background: #303030;
+  background: #545454;
   border-radius: 10px;
 }
 .md-modal::-webkit-scrollbar-thumb:hover {
