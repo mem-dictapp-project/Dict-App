@@ -41,7 +41,7 @@ selectionIcon.style.height = "32px";
 selectionIcon.style.display = "none";
 document.body.appendChild(selectionIcon);
 
-const INITIAL_MODAL_MAX_HEIGHT = 200;
+const INITIAL_MODAL_MAX_HEIGHT = 240;
 
 // --- ポップアップ内のイベント処理 ---
 translationPopup.addEventListener("click", async (event) => {
