@@ -1,9 +1,9 @@
-:host {
+#md-shadow-wrapper {
   all: initial;
-  display: block;
   font-family: Inter, sans-serif;
   color: #1c1c1c;
   line-height: 1.5;
+  font-size: 14px; /* Set a base font size */
 }
 
 *,
@@ -188,6 +188,7 @@
   text-decoration: underline;
   font-size: 12px;
   cursor: pointer;
+  color: #009DE0;
 }
 
 /* --- Floating Footer --- */
