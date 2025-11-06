@@ -12,6 +12,9 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbx0Gd0tbZ5tbkk1cwnz5VmXMF3Nl3h4OzSOqL9jDCWE6M6nl5bb21s1OxawOSIX8hyD_Q/exec";
+
 // コンテキストメニューがクリックされたときの処理
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "translateText") {
@@ -28,5 +31,26 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         });
       }
     }
+  }
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "fetchFromGAS") {
+    fetch(API_URL, {
+      method: "POST",
+      mode: "cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: request.message }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        sendResponse({ success: true, data: data });
+      })
+      .catch((error) => {
+        console.error("Error fetching from GAS:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    return true; // 非同期レスポンスのためにtrueを返す
   }
 });

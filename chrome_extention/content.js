@@ -151,40 +151,91 @@ document.addEventListener("keydown", (event) => {
 
 // --- 関数定義 ---
 
-async function getTermData(term) {
-  const MAX_RETRIES = 3;
-  const RETRY_DELAY = 100; // ms
-
-  for (let i = 0; i < MAX_RETRIES; i++) {
-    try {
-      const response = await fetch(termsJsonUrl);
-
-      // 4xx, 5xx系のエラーはリトライしても成功しないので即時失敗させる
-      if (!response.ok) {
-        console.error(`[getTermData] Failed to fetch terms.json with status: ${response.status}. Aborting retries.`);
-        return null;
+async function sendMessageToGAS(message) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({ action: "fetchFromGAS", message: message }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error("[sendMessageToGAS] Error sending message:", chrome.runtime.lastError.message);
+        reject(new Error(chrome.runtime.lastError.message));
+        return;
       }
 
-      const data = await response.json();
-      if (data.results && data.results.length > 0) {
-        return data.results;
-      }
-      // JSONは正しいが中身が空の場合
-      return null;
+      if (response && response.success) {
+        const values = response.data.value;
 
-    } catch (error) {
-      console.error(`[getTermData] Attempt ${i + 1} of ${MAX_RETRIES} failed:`, error);
-      if (i < MAX_RETRIES - 1) {
-        // 次のリトライの前に少し待機
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (i + 1)));
+        // valuesが配列であることを確認
+        if (!Array.isArray(values)) {
+            console.error("[sendMessageToGAS] Response value is not an array:", values);
+            resolve([]); // or resolve(null) depending on desired error handling
+            return;
+        }
+
+        if (values.length === 0) {
+          resolve([]);
+          return;
+        }
+        
+        // APIからのレスポンスを既存のデータ構造にマッピング
+        const mappedValues = values.map(item => ({
+          word: item.A,
+          abbreviation: item.B,
+          is_memword: item.C,
+          description: item.D,
+          source_url: item.E
+        }));
+        resolve(mappedValues);
       } else {
-        // すべてのリトライが失敗
-        console.error('[getTermData] All retry attempts failed.');
-        return null;
+        console.error("[sendMessageToGAS] API request failed:", response ? response.error : 'No response');
+        resolve(null); // エラー時はnullを返す
       }
-    }
-  }
-  return null;
+    });
+  });
+}
+
+async function getTermData(term) {
+  return new Promise((resolve) => {
+    chrome.storage.local.get({ useApi: true }, async (items) => {
+      if (items.useApi) {
+        const results = await sendMessageToGAS(term);
+        resolve(results);
+      } else {
+        // ローカルのJSONファイルから取得するロジック（既存の処理）
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY = 100; // ms
+
+        for (let i = 0; i < MAX_RETRIES; i++) {
+          try {
+            const response = await fetch(termsJsonUrl);
+
+            if (!response.ok) {
+              console.error(`[getTermData] Failed to fetch terms.json with status: ${response.status}. Aborting retries.`);
+              resolve(null);
+              return;
+            }
+
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+              resolve(data.results);
+              return;
+            }
+            resolve(null);
+            return;
+
+          } catch (error) {
+            console.error(`[getTermData] Attempt ${i + 1} of ${MAX_RETRIES} failed:`, error);
+            if (i < MAX_RETRIES - 1) {
+              await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (i + 1)));
+            } else {
+              console.error('[getTermData] All retry attempts failed.');
+              resolve(null);
+              return;
+            }
+          }
+        }
+        resolve(null);
+      }
+    });
+  });
 }
 
 function startTranslation(text) {
