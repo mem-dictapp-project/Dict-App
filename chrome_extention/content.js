@@ -6,7 +6,7 @@ const translationPopupHost = document.createElement("div");
 translationPopupHost.id = "md-text-translation-popup-host";
 translationPopupHost.style.all = "initial";
 translationPopupHost.style.position = "absolute";
-translationPopupHost.style.zIndex = "2147483647"; // Max z-index
+translationPopupHost.style.zIndex = "100"; // Max z-index
 document.body.appendChild(translationPopupHost);
 
 const shadowRoot = translationPopupHost.attachShadow({ mode: 'open' });
@@ -42,6 +42,7 @@ selectionIcon.style.display = "none";
 document.body.appendChild(selectionIcon);
 
 const INITIAL_MODAL_MAX_HEIGHT = 240;
+let latestRequestId;
 
 // --- ポップアップ内のイベント処理 ---
 translationPopup.addEventListener("click", async (event) => {
@@ -240,6 +241,8 @@ async function getTermData(term) {
 
 function startTranslation(text) {
   const selection = window.getSelection();
+  const requestId = Date.now();
+  latestRequestId = requestId;
 
   if (selection.rangeCount > 0) {
     const range = selection.getRangeAt(0);
@@ -260,11 +263,15 @@ function startTranslation(text) {
     translationPopup.classList.add("visible");
   });
 
-  sendTextForTranslation(text);
+  sendTextForTranslation(text, requestId);
 }
 
-async function sendTextForTranslation(text) {
+async function sendTextForTranslation(text, requestId) {
   let results = await getTermData(text);
+
+  if (latestRequestId !== requestId) {
+    return;
+  }
 
   if (results && results.length > 0) {
     const mainResult = results[0];
