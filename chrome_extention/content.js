@@ -244,8 +244,10 @@ function startTranslation(text) {
   if (selection.rangeCount > 0) {
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
-    translationPopupHost.style.left = `${rect.left}px`;
-    translationPopupHost.style.top = `${rect.bottom + 10}px`;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+    translationPopupHost.style.left = `${rect.left + scrollLeft}px`;
+    translationPopupHost.style.top = `${rect.bottom + scrollTop + 10}px`;
   }
   translationPopup.innerHTML = `
     <div class="md-loading-animation">
@@ -258,10 +260,10 @@ function startTranslation(text) {
     translationPopup.classList.add("visible");
   });
 
-  sendTextForTranslation(text, selection);
+  sendTextForTranslation(text);
 }
 
-async function sendTextForTranslation(text, selection) {
+async function sendTextForTranslation(text) {
   let results = await getTermData(text);
 
   if (results && results.length > 0) {
@@ -269,10 +271,10 @@ async function sendTextForTranslation(text, selection) {
     translationPopup.innerHTML = generatePopupHTML(mainResult);
     translationPopup._allResults = results;
     renderPopup(mainResult, results);
-    positionAndShowPopup(selection);
+    positionAndShowPopup();
   } else {
     translationPopup.innerHTML = `<div class="md-no-result">一致する結果がありません</div>`;
-    positionAndShowPopup(selection);
+    positionAndShowPopup();
   }
 }
 
@@ -351,7 +353,8 @@ function renderPopup(mainTerm, allResults) {
   positionFooterButton();
 }
 
-function positionAndShowPopup(selection) {
+function positionAndShowPopup() {
+  const selection = window.getSelection();
   if (!selection || selection.rangeCount === 0) {
     hidePopup();
     return;
