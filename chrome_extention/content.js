@@ -6,7 +6,7 @@ const translationPopupHost = document.createElement("div");
 translationPopupHost.id = "md-text-translation-popup-host";
 translationPopupHost.style.all = "initial";
 translationPopupHost.style.position = "absolute";
-translationPopupHost.style.zIndex = "100"; // Max z-index
+translationPopupHost.style.zIndex = "10000000"; // Max z-index
 document.body.appendChild(translationPopupHost);
 
 const shadowRoot = translationPopupHost.attachShadow({ mode: 'open' });
