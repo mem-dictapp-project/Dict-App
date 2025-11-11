@@ -13,7 +13,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbx0Gd0tbZ5tbkk1cwnz5VmXMF3Nl3h4OzSOqL9jDCWE6M6nl5bb21s1OxawOSIX8hyD_Q/exec";
+  "https://script.google.com/macros/s/AKfycbzby1FIPScxolpnAnRa4ngF3yPFLsgVs7QmlhnGH-rhs5phVZ3RHi346MX5RXfXZ3aUNQ/exec";
 
 // コンテキストメニューがクリックされたときの処理
 chrome.contextMenus.onClicked.addListener((info, tab) => {
