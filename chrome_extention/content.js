@@ -6,7 +6,7 @@ const translationPopupHost = document.createElement("div");
 translationPopupHost.id = "md-text-translation-popup-host";
 translationPopupHost.style.all = "initial";
 translationPopupHost.style.position = "absolute";
-translationPopupHost.style.zIndex = "10000000"; // Max z-index
+translationPopupHost.style.zIndex = "2100000000"; // Max z-index
 document.body.appendChild(translationPopupHost);
 
 const shadowRoot = translationPopupHost.attachShadow({ mode: 'open' });
@@ -255,7 +255,7 @@ function startTranslation(text) {
   translationPopup.innerHTML = `
     <div class="md-loading-animation">
       <div class="md-dot-pulse"><div class="md-dot-pulse__dot"></div></div>
-      <div class="md-loading-text">翻訳中...</div>
+      <div class="md-loading-text">検索中...</div>
     </div>`;
   
   translationPopupHost.style.display = "block";
