@@ -6,7 +6,7 @@ const translationPopupHost = document.createElement("div");
 translationPopupHost.id = "md-text-translation-popup-host";
 translationPopupHost.style.all = "initial";
 translationPopupHost.style.position = "absolute";
-translationPopupHost.style.zIndex = "10000000"; // Max z-index
+translationPopupHost.style.zIndex = "2100000000"; // Max z-index
 document.body.appendChild(translationPopupHost);
 
 const shadowRoot = translationPopupHost.attachShadow({ mode: 'open' });
@@ -249,13 +249,22 @@ function startTranslation(text) {
     const rect = range.getBoundingClientRect();
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+    
+    let top = rect.bottom + scrollTop + 10;
+    const viewportHeight = document.documentElement.clientHeight;
+    const loaderHeight = 80; // Approximate height of the loading indicator
+
+    // If loader would go off-screen, and there's space above, place it above.
+    if (rect.bottom + loaderHeight > viewportHeight && rect.top > loaderHeight) {
+        top = rect.top + scrollTop - loaderHeight - 10;
+    }
     translationPopupHost.style.left = `${rect.left + scrollLeft}px`;
-    translationPopupHost.style.top = `${rect.bottom + scrollTop + 10}px`;
+    translationPopupHost.style.top = `${top}px`;
   }
   translationPopup.innerHTML = `
     <div class="md-loading-animation">
       <div class="md-dot-pulse"><div class="md-dot-pulse__dot"></div></div>
-      <div class="md-loading-text">翻訳中...</div>
+      <div class="md-loading-text">検索中...</div>
     </div>`;
   
   translationPopupHost.style.display = "block";
@@ -367,8 +376,9 @@ function positionAndShowPopup() {
     return;
   }
 
-  const popupRect = translationPopupHost.getBoundingClientRect();
-  const popupWidth = 400; // Approximate width
+  // Use the actual rendered height of the popup content, with a fallback.
+  const popupHeight = translationPopup.offsetHeight > 0 ? translationPopup.offsetHeight : 300;
+  const popupWidth = 400; // From CSS
 
   const range = selection.getRangeAt(0);
   const rect = range.getBoundingClientRect();
@@ -376,22 +386,37 @@ function positionAndShowPopup() {
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
   const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
   
-  let top = rect.bottom + scrollTop + 10;
+  let top;
   let left = rect.left + scrollLeft;
 
   const viewportWidth = document.documentElement.clientWidth;
   const viewportHeight = document.documentElement.clientHeight;
 
+  const spaceBelow = viewportHeight - rect.bottom;
+  const spaceAbove = rect.top;
+
+  // If there's not enough space below, and there's more space (or it's the only option) above
+  if (spaceBelow < popupHeight && spaceAbove > spaceBelow) {
+      // Position above the selection
+      top = rect.top + scrollTop - popupHeight - 10;
+  } else {
+      // Position below the selection (default)
+      top = rect.bottom + scrollTop + 10;
+  }
+
+  // Clamp top position to be within viewport, ensuring it's not pushed off-screen
+  if (top < scrollTop) {
+    top = scrollTop + 10;
+  } else if (top + popupHeight > scrollTop + viewportHeight) {
+    top = scrollTop + viewportHeight - popupHeight - 10;
+  }
+
+  // --- Horizontal Positioning ---
   if (left + popupWidth > viewportWidth + scrollLeft) {
     left = viewportWidth + scrollLeft - popupWidth - 10;
   }
   if (left < scrollLeft) {
     left = scrollLeft + 10;
-  }
-  if (rect.bottom + 300 > viewportHeight) { // Approximate height
-    if (rect.top > 300) {
-      top = rect.top + scrollTop - 300 - 10;
-    }
   }
   
   translationPopupHost.style.left = `${left}px`;
