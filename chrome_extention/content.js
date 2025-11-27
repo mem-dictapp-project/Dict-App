@@ -43,6 +43,7 @@ document.body.appendChild(selectionIcon);
 
 const INITIAL_MODAL_MAX_HEIGHT = 240;
 let latestRequestId;
+let lastSelectionRect = null;
 
 // --- ポップアップ内のイベント処理 ---
 translationPopup.addEventListener("click", async (event) => {
@@ -63,7 +64,7 @@ translationPopup.addEventListener("click", async (event) => {
 
         relatedTerms.forEach(term => {
           const listItem = document.createElement("li");
-          listItem.textContent = term.word;
+          listItem.textContent = term.word + "（" + term.abbreviation + "）";
           listItem.className = "md-related-item";
           listItem.addEventListener("click", (event) => {
             event.stopPropagation();
@@ -96,7 +97,8 @@ translationPopup.addEventListener("click", async (event) => {
 
 // --- グローバルイベントリスナー ---
 document.addEventListener("mouseup", (event) => {
-  if (event.target === selectionIcon || translationPopupHost.contains(event.target)) {
+  const path = event.composedPath();
+  if (path.includes(translationPopupHost) || event.target === selectionIcon) {
     return;
   }
   setTimeout(() => {
@@ -105,6 +107,7 @@ document.addEventListener("mouseup", (event) => {
     if (selectedText.length >= 2 && selectedText.length <= 50) {
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return; // Ignore empty selections
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
       selectionIcon.style.left = `${rect.right + scrollLeft + 5}px`;
@@ -136,7 +139,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 document.addEventListener("click", (event) => {
-  if (translationPopupHost.contains(event.target) || selectionIcon.contains(event.target)) {
+  const path = event.composedPath();
+  if (path.includes(translationPopupHost) || path.includes(selectionIcon)) {
     return;
   }
   hidePopup();
@@ -246,7 +250,8 @@ function startTranslation(text) {
 
   if (selection.rangeCount > 0) {
     const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
+    lastSelectionRect = range.getBoundingClientRect();
+    const rect = lastSelectionRect;
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
     
@@ -370,18 +375,15 @@ function renderPopup(mainTerm, allResults) {
 }
 
 function positionAndShowPopup() {
-  const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0) {
+  if (!lastSelectionRect) {
     hidePopup();
     return;
   }
+  const rect = lastSelectionRect;
 
   // Use the actual rendered height of the popup content, with a fallback.
   const popupHeight = translationPopup.offsetHeight > 0 ? translationPopup.offsetHeight : 300;
   const popupWidth = 400; // From CSS
-
-  const range = selection.getRangeAt(0);
-  const rect = range.getBoundingClientRect();
   
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
   const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
@@ -521,6 +523,7 @@ function hideIcon() {
 function hidePopup() {
   if (translationPopup.classList.contains("visible")) {
     translationPopup.classList.remove("visible");
+    lastSelectionRect = null; // Clear the saved rect
     setTimeout(() => {
       translationPopupHost.style.display = "none";
       translationPopup.innerHTML = "";
