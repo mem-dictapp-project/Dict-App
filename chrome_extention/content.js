@@ -16,6 +16,14 @@ const shadowWrapper = document.createElement('div');
 shadowWrapper.id = "md-shadow-wrapper";
 shadowRoot.appendChild(shadowWrapper);
 
+// Create a single, reusable tooltip element and add it to the shadow DOM
+const sharedTooltip = document.createElement('div');
+sharedTooltip.className = 'tooltip'; // Reuse existing styles
+const sharedTooltipContent = document.createElement('div');
+sharedTooltipContent.className = 'tooltip-text';
+sharedTooltip.appendChild(sharedTooltipContent);
+shadowWrapper.appendChild(sharedTooltip);
+
 // スタイルシートを動的に読み込み、Shadow DOMに適用
 const styleUrl = chrome.runtime.getURL('styles.css');
 fetch(styleUrl)
@@ -92,6 +100,35 @@ translationPopup.addEventListener("click", async (event) => {
   const closeBtn = event.target.closest(".md-modal-close");
   if (closeBtn) {
     hidePopup();
+  }
+});
+
+translationPopup.addEventListener('mouseover', (event) => {
+  const wrapper = event.target.closest('.tooltip-wrapper');
+  if (wrapper && wrapper.dataset.tooltip) {
+    const tooltipText = wrapper.dataset.tooltip;
+    sharedTooltipContent.innerHTML = tooltipText; // Use innerHTML to render <br>
+
+    const hostRect = translationPopupHost.getBoundingClientRect();
+    const wrapperRect = wrapper.getBoundingClientRect();
+
+    // Position tooltip relative to the translationPopupHost, which is the positioned ancestor
+    const top = (wrapperRect.bottom - hostRect.top) + 10; // 10px below the wrapper
+    const left = (wrapperRect.left - hostRect.left) + (wrapperRect.width / 2); // Centered on the wrapper
+
+    sharedTooltip.style.top = `${top}px`;
+    sharedTooltip.style.left = `${left}px`;
+    
+    sharedTooltip.style.visibility = 'visible';
+    sharedTooltip.style.opacity = '1';
+  }
+});
+
+translationPopup.addEventListener('mouseout', (event) => {
+  const wrapper = event.target.closest('.tooltip-wrapper');
+  if (wrapper && wrapper.dataset.tooltip) {
+    sharedTooltip.style.visibility = 'hidden';
+    sharedTooltip.style.opacity = '0';
   }
 });
 
@@ -480,34 +517,26 @@ function generatePopupHTML(mainTerm) {
               <button id="md-show-related-btn" class="md-footer-btn">
                 <img src="https://img.icons8.com/ios-glyphs/30/chevron-down.png" alt="chevron-down" style="width: 20px; height: 20px;"/>
               </button>
-            </div>
-        </div>
-        <div class="md-modal-footer">
-          <div class="md-footer-float">
-            <div class="tooltip-wrapper">
-              <a href="https://google.com" target="_blank" class="md-footer-btn">
-                <img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/>
-              </a>
-              <div class="tooltip">
-                <div class="tooltip-text">用語集を開く</div>
-              </div>
-            </div>
-            
-            <div class="tooltip-wrapper">
-              <a href="https://google.com" target="_blank" class="md-footer-btn">
-                <img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/>
-              </a>
-              <div class="tooltip">
-                <div class="tooltip-text">問い合わせ・<br>用語追加希望を送る</div>
-              </div>
-            </div>
-            
-            <div class="tooltip-wrapper">
-              <a href="https://google.com" target="_blank" class="md-footer-btn">
-                <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/>
-              </a>
-              <div class="tooltip">
-                <div class="tooltip-text">ヘルプ・使い方<br>を見る</div>
+
+            <div class="md-modal-footer">
+              <div class="md-footer-float">
+                <div class="tooltip-wrapper" data-tooltip="用語集を開く">
+                  <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/>
+                  </a>
+                </div>
+                
+                <div class="tooltip-wrapper" data-tooltip="問い合わせ・<br>用語追加希望を送る">
+                  <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/>
+                  </a>
+                </div>
+                
+                <div class="tooltip-wrapper" data-tooltip="ヘルプ・使い方<br>を見る">
+                  <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
