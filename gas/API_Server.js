@@ -1,11 +1,11 @@
 function doPost(e) {
   // スプレッドシートIDを定数として保持
-  const SPREADSHEET_ID = "1k9iJRvgmMUe1MW7ijDgFEm5IGH5_5unPJ7bMWLPg9y8";
-  // 履歴を記録するシート名
-  const HISTORY_SHEET_NAME = "検索履歴"; 
+  const SPREADSHEET_ID = "<検索用スプレッドシートID>";
+
+  // ログ用スプレッドシートID
+  const HISTORY_SHEET_NAME = "<ログ用スプレッドシートID>";
 
   let searchTerm = "";   // 検索値（message）を保持する変数
-  let matchType = null; // 検索結果を保持する変数
   const timestamp = new Date(); // 現在時刻を取得
 
   // ★ 修正点 1: historySheetをtryブロックの外側で宣言する
@@ -24,7 +24,8 @@ function doPost(e) {
     const sheet = ss.getSheetByName("運用者用");
 
     // ★ 修正点 2: historySheetに値を代入する
-    historySheet = ss.getSheetByName(HISTORY_SHEET_NAME); // 履歴シートを取得
+    const sslog = SpreadsheetApp.openById(HISTORY_SHEET_NAME);
+    historySheet = sslog.getSheetByName("検索履歴");
 
     const lastRow = sheet.getLastRow();
     
@@ -72,9 +73,7 @@ function doPost(e) {
             C: rangeData[i][2],
             D: rangeData[i][3],
             E: rangeData[i][4],
-            matchType: matchType,
-            termA: termA,
-            termB: termB  
+            matchType: matchType
           });
         }
       }
