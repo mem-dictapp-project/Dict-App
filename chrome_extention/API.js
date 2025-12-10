@@ -65,7 +65,7 @@ async function sendMessageToGAS(message) {
 }
 
 // 例: message変数の内容を送信
-const message = "membe"; // スプレッドシートに「m」という値がない場合にnullが返る
+const message = "members"; // スプレッドシートに「m」という値がない場合にnullが返る
 sendMessageToGAS(message).then(value => {
 	// valueがnullでないか、または文字列でないかを確認
 	if (value && typeof value !== 'string') {
