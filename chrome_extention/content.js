@@ -378,7 +378,7 @@ function renderPopup(mainTerm, allResults) {
 
     relatedTerms.forEach(term => {
       const listItem = document.createElement("li");
-      listItem.textContent = term.word;
+      listItem.textContent = term.word + "（" + term.abbreviation + "）";
       listItem.className = "md-related-item";
       listItem.addEventListener("click", (event) => {
         event.stopPropagation();
@@ -478,6 +478,7 @@ function positionFooterButton() {
     const contentHeight = content.offsetHeight;
     const footerTop = headerHeight + contentHeight - 24;
     footerCenter.style.top = `${footerTop}px`;
+    footerCenter.style.minHeight = `36px`;
     footerCenter.style.opacity = 1;
   } else if (footerCenter) {
     footerCenter.style.opacity = 0;
@@ -515,8 +516,8 @@ function generatePopupHTML(mainTerm) {
             <div id="md-related-terms-container"></div>
             <div class="md-footer-center">
               <button id="md-show-related-btn" class="md-footer-btn">
-                <img src="https://img.icons8.com/ios-glyphs/30/chevron-down.png" alt="chevron-down" style="width: 20px; height: 20px;"/>
-              </button>
+              <img src="https://img.icons8.com/ios-glyphs/30/chevron-down.png" alt="chevron-down" style="width: 20px; height: 20px;"/>
+            </button>
 
             <div class="md-modal-footer">
               <div class="md-footer-float">
@@ -537,9 +538,9 @@ function generatePopupHTML(mainTerm) {
                     <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/>
                   </a>
                 </div>
+                </div>
               </div>
             </div>
-          </div>
         </div>
     </div>`;
 }
