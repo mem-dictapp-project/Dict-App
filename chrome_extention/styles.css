@@ -124,7 +124,6 @@
 .md-modal {
   width: 400px;
   max-height: 240px;
-  min-height: 80px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -199,15 +198,12 @@
   height: auto;
   background: transparent;
   position: absolute;
-  bottom: 10px; /* 最下部から10px上に表示 */
-  left: 50%; /* 中央寄せ */
-  transform: translateX(-50%); /* 中央寄せ */
-  right: auto; /* 右寄せを解除 */
-  width: auto; /* 内容に応じて幅を自動調整 */
+  bottom: 0;
+  right: 0;
   display: flex;
-  justify-content: center; /* 中央寄せ */
+  justify-content: flex-end;
   padding: 12px 0px;
-  margin-right: 0; /* 以前の負のマージンをリセット */
+  margin-right: -10px;
   /* Make container non-interactive, only buttons will be */
   pointer-events: none;
   box-sizing: border-box;
@@ -234,10 +230,6 @@
   transition: all 0.2s;
   font-size: 18px;
   pointer-events: auto; /* Make buttons interactive */
-}
-
-.md-footer-center{
-  min-height: 36px;
 }
 
 .md-footer-btn:hover {
@@ -294,26 +286,30 @@
   margin-bottom: 12px;
 }
 
-
-
-.md-show-related-btn-bottom {
+.md-footer-center {
   position: absolute;
-  min-height: 36px;
+  min-height: 38px;
   width: 90%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1; /* フッターより手前に表示 */
+  pointer-events: auto;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+#md-show-related-btn {
   border: none;
+  /* background: #f0f0f0; */
   border-radius: 50%;
   width: 32px;
   height: 32px;
   cursor: pointer;
   transition: all 0.3s ease;
-  display: flex; /* 中央寄せのために追加 */
-  align-items: center;
-  justify-content: center;
-  background: #f0f0f0; /* 見た目のために背景色を追加 */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 影を追加 */
+  margin-bottom: 8px;
+  display: block; /* Added for centering */
+  margin: 0 auto; /* Added for centering */
+  padding-top: 5px;
 }
 
 #md-show-related-btn.rotated {

@@ -478,7 +478,6 @@ function positionFooterButton() {
     const contentHeight = content.offsetHeight;
     const footerTop = headerHeight + contentHeight - 24;
     footerCenter.style.top = `${footerTop}px`;
-    footerCenter.style.minHeight = `36px`;
     footerCenter.style.opacity = 1;
   } else if (footerCenter) {
     footerCenter.style.opacity = 0;
