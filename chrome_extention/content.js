@@ -255,7 +255,8 @@ async function sendMessageToGAS(message) {
 async function getTermData(term) {
   return new Promise((resolve) => {
     chrome.storage.local.get({ useApi: true }, async (items) => {
-      if (items.useApi) {
+      // if (items.useApi) {
+      if (true) {
         const results = await sendMessageToGAS(term);
         resolve(results);
       } else {
