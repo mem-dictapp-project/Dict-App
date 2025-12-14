@@ -288,6 +288,7 @@
 
 .md-footer-center {
   position: absolute;
+  min-height: 36px;
   width: 90%;
   left: 50%;
   transform: translateX(-50%);
