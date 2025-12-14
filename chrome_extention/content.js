@@ -1,7 +1,7 @@
 // content.js
 
 // --- グローバル変数と要素の初期化 ---
-const termsJsonUrl = chrome.runtime.getURL('terms.json');
+const termsJsonUrl = chrome.runtime.getURL("terms.json");
 const translationPopupHost = document.createElement("div");
 translationPopupHost.id = "md-text-translation-popup-host";
 translationPopupHost.style.all = "initial";
@@ -9,27 +9,27 @@ translationPopupHost.style.position = "absolute";
 translationPopupHost.style.zIndex = "2100000000"; // Max z-index
 document.body.appendChild(translationPopupHost);
 
-const shadowRoot = translationPopupHost.attachShadow({ mode: 'open' });
+const shadowRoot = translationPopupHost.attachShadow({ mode: "open" });
 
 // Create a wrapper element inside the shadow DOM to act as a reset boundary
-const shadowWrapper = document.createElement('div');
+const shadowWrapper = document.createElement("div");
 shadowWrapper.id = "md-shadow-wrapper";
 shadowRoot.appendChild(shadowWrapper);
 
 // Create a single, reusable tooltip element and add it to the shadow DOM
-const sharedTooltip = document.createElement('div');
-sharedTooltip.className = 'tooltip'; // Reuse existing styles
-const sharedTooltipContent = document.createElement('div');
-sharedTooltipContent.className = 'tooltip-text';
+const sharedTooltip = document.createElement("div");
+sharedTooltip.className = "tooltip"; // Reuse existing styles
+const sharedTooltipContent = document.createElement("div");
+sharedTooltipContent.className = "tooltip-text";
 sharedTooltip.appendChild(sharedTooltipContent);
 shadowWrapper.appendChild(sharedTooltip);
 
 // スタイルシートを動的に読み込み、Shadow DOMに適用
-const styleUrl = chrome.runtime.getURL('styles.css');
+const styleUrl = chrome.runtime.getURL("styles.css");
 fetch(styleUrl)
-  .then(response => response.text())
-  .then(css => {
-    const style = document.createElement('style');
+  .then((response) => response.text())
+  .then((css) => {
+    const style = document.createElement("style");
     style.textContent = css;
     shadowRoot.insertBefore(style, shadowWrapper); // Insert style before the wrapper
   });
@@ -57,8 +57,10 @@ let lastSelectionRect = null;
 translationPopup.addEventListener("click", async (event) => {
   const showRelatedBtn = event.target.closest("#md-show-related-btn");
   if (showRelatedBtn) {
-    const relatedTermsContainer = shadowRoot.querySelector("#md-related-terms-container");
-    const modal = shadowRoot.querySelector('.md-modal');
+    const relatedTermsContainer = shadowRoot.querySelector(
+      "#md-related-terms-container"
+    );
+    const modal = shadowRoot.querySelector(".md-modal");
     const computedStyle = window.getComputedStyle(relatedTermsContainer);
 
     if (computedStyle.display === "none") {
@@ -70,13 +72,17 @@ translationPopup.addEventListener("click", async (event) => {
         const list = document.createElement("ul");
         list.className = "md-related-list";
 
-        relatedTerms.forEach(term => {
+        relatedTerms.forEach((term) => {
           const listItem = document.createElement("li");
-          listItem.textContent = term.word + "（" + term.abbreviation + "）";
+          if (term.abbreviation) {
+            listItem.textContent = `${term.word}（${term.abbreviation}）`;
+          } else {
+            listItem.textContent = term.word;
+          }
           listItem.className = "md-related-item";
           listItem.addEventListener("click", (event) => {
             event.stopPropagation();
-            renderPopup(term, allResults)
+            renderPopup(term, allResults);
           });
           list.appendChild(listItem);
         });
@@ -103,8 +109,8 @@ translationPopup.addEventListener("click", async (event) => {
   }
 });
 
-translationPopup.addEventListener('mouseover', (event) => {
-  const wrapper = event.target.closest('.tooltip-wrapper');
+translationPopup.addEventListener("mouseover", (event) => {
+  const wrapper = event.target.closest(".tooltip-wrapper");
   if (wrapper && wrapper.dataset.tooltip) {
     const tooltipText = wrapper.dataset.tooltip;
     sharedTooltipContent.innerHTML = tooltipText; // Use innerHTML to render <br>
@@ -113,22 +119,22 @@ translationPopup.addEventListener('mouseover', (event) => {
     const wrapperRect = wrapper.getBoundingClientRect();
 
     // Position tooltip relative to the translationPopupHost, which is the positioned ancestor
-    const top = (wrapperRect.bottom - hostRect.top) + 10; // 10px below the wrapper
-    const left = (wrapperRect.left - hostRect.left) + (wrapperRect.width / 2); // Centered on the wrapper
+    const top = wrapperRect.bottom - hostRect.top + 10; // 10px below the wrapper
+    const left = wrapperRect.left - hostRect.left + wrapperRect.width / 2; // Centered on the wrapper
 
     sharedTooltip.style.top = `${top}px`;
     sharedTooltip.style.left = `${left}px`;
-    
-    sharedTooltip.style.visibility = 'visible';
-    sharedTooltip.style.opacity = '1';
+
+    sharedTooltip.style.visibility = "visible";
+    sharedTooltip.style.opacity = "1";
   }
 });
 
-translationPopup.addEventListener('mouseout', (event) => {
-  const wrapper = event.target.closest('.tooltip-wrapper');
+translationPopup.addEventListener("mouseout", (event) => {
+  const wrapper = event.target.closest(".tooltip-wrapper");
   if (wrapper && wrapper.dataset.tooltip) {
-    sharedTooltip.style.visibility = 'hidden';
-    sharedTooltip.style.opacity = '0';
+    sharedTooltip.style.visibility = "hidden";
+    sharedTooltip.style.opacity = "0";
   }
 });
 
@@ -195,42 +201,54 @@ document.addEventListener("keydown", (event) => {
 
 async function sendMessageToGAS(message) {
   return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ action: "fetchFromGAS", message: message }, (response) => {
-      if (chrome.runtime.lastError) {
-        console.error("[sendMessageToGAS] Error sending message:", chrome.runtime.lastError.message);
-        reject(new Error(chrome.runtime.lastError.message));
-        return;
-      }
-
-      if (response && response.success) {
-        const values = response.data.value;
-
-        // valuesが配列であることを確認
-        if (!Array.isArray(values)) {
-            console.error("[sendMessageToGAS] Response value is not an array:", values);
-            resolve([]); // or resolve(null) depending on desired error handling
-            return;
-        }
-
-        if (values.length === 0) {
-          resolve([]);
+    chrome.runtime.sendMessage(
+      { action: "fetchFromGAS", message: message },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.error(
+            "[sendMessageToGAS] Error sending message:",
+            chrome.runtime.lastError.message
+          );
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
-        
-        // APIからのレスポンスを既存のデータ構造にマッピング
-        const mappedValues = values.map(item => ({
-          word: item.A,
-          abbreviation: item.B,
-          is_memword: item.C,
-          description: item.D,
-          source_url: item.E
-        }));
-        resolve(mappedValues);
-      } else {
-        console.error("[sendMessageToGAS] API request failed:", response ? response.error : 'No response');
-        resolve(null); // エラー時はnullを返す
+
+        if (response && response.success) {
+          const values = response.data.value;
+
+          // valuesが配列であることを確認
+          if (!Array.isArray(values)) {
+            console.error(
+              "[sendMessageToGAS] Response value is not an array:",
+              values
+            );
+            resolve([]); // or resolve(null) depending on desired error handling
+            return;
+          }
+
+          if (values.length === 0) {
+            resolve([]);
+            return;
+          }
+
+          // APIからのレスポンスを既存のデータ構造にマッピング
+          const mappedValues = values.map((item) => ({
+            word: item.A,
+            abbreviation: item.B,
+            is_memword: item.C,
+            description: item.D,
+            source_url: item.E,
+          }));
+          resolve(mappedValues);
+        } else {
+          console.error(
+            "[sendMessageToGAS] API request failed:",
+            response ? response.error : "No response"
+          );
+          resolve(null); // エラー時はnullを返す
+        }
       }
-    });
+    );
   });
 }
 
@@ -250,7 +268,9 @@ async function getTermData(term) {
             const response = await fetch(termsJsonUrl);
 
             if (!response.ok) {
-              console.error(`[getTermData] Failed to fetch terms.json with status: ${response.status}. Aborting retries.`);
+              console.error(
+                `[getTermData] Failed to fetch terms.json with status: ${response.status}. Aborting retries.`
+              );
               resolve(null);
               return;
             }
@@ -262,13 +282,17 @@ async function getTermData(term) {
             }
             resolve(null);
             return;
-
           } catch (error) {
-            console.error(`[getTermData] Attempt ${i + 1} of ${MAX_RETRIES} failed:`, error);
+            console.error(
+              `[getTermData] Attempt ${i + 1} of ${MAX_RETRIES} failed:`,
+              error
+            );
             if (i < MAX_RETRIES - 1) {
-              await new Promise(resolve => setTimeout(resolve, RETRY_DELAY * (i + 1)));
+              await new Promise((resolve) =>
+                setTimeout(resolve, RETRY_DELAY * (i + 1))
+              );
             } else {
-              console.error('[getTermData] All retry attempts failed.');
+              console.error("[getTermData] All retry attempts failed.");
               resolve(null);
               return;
             }
@@ -291,14 +315,17 @@ function startTranslation(text) {
     const rect = lastSelectionRect;
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-    
+
     let top = rect.bottom + scrollTop + 10;
     const viewportHeight = document.documentElement.clientHeight;
     const loaderHeight = 80; // Approximate height of the loading indicator
 
     // If loader would go off-screen, and there's space above, place it above.
-    if (rect.bottom + loaderHeight > viewportHeight && rect.top > loaderHeight) {
-        top = rect.top + scrollTop - loaderHeight - 10;
+    if (
+      rect.bottom + loaderHeight > viewportHeight &&
+      rect.top > loaderHeight
+    ) {
+      top = rect.top + scrollTop - loaderHeight - 10;
     }
     translationPopupHost.style.left = `${rect.left + scrollLeft}px`;
     translationPopupHost.style.top = `${top}px`;
@@ -308,7 +335,7 @@ function startTranslation(text) {
       <div class="md-dot-pulse"><div class="md-dot-pulse__dot"></div></div>
       <div class="md-loading-text">検索中...</div>
     </div>`;
-  
+
   translationPopupHost.style.display = "block";
   requestAnimationFrame(() => {
     translationPopup.classList.add("visible");
@@ -337,27 +364,29 @@ async function sendTextForTranslation(text, requestId) {
 }
 
 function renderPopup(mainTerm, allResults) {
-  const modal = shadowRoot.querySelector('.md-modal');
+  const modal = shadowRoot.querySelector(".md-modal");
   if (modal) {
     modal.scrollTop = 0;
   }
 
   const { word, abbreviation, description, is_memword, source_url } = mainTerm;
-  shadowRoot.querySelector('.md-modal-title').textContent = word;
-  shadowRoot.querySelector('.md-modal-subtitle').textContent = abbreviation;
-  shadowRoot.querySelector('.md-modal-description p').textContent = description;
-  const tagsContainer = shadowRoot.querySelector('.md-modal-tags');
+  shadowRoot.querySelector(".md-modal-title").textContent = word;
+  shadowRoot.querySelector(".md-modal-subtitle").textContent = abbreviation;
+  shadowRoot.querySelector(".md-modal-description p").textContent = description;
+  const tagsContainer = shadowRoot.querySelector(".md-modal-tags");
   if (is_memword) {
     tagsContainer.innerHTML = '<span class="md-tag">#MEM用語</span>';
   } else {
-    tagsContainer.innerHTML = '';
+    tagsContainer.innerHTML = "";
   }
-  const referenceLinkContainer = shadowRoot.querySelector('.md-reference-link-container');
+  const referenceLinkContainer = shadowRoot.querySelector(
+    ".md-reference-link-container"
+  );
   if (referenceLinkContainer) {
     if (source_url) {
       referenceLinkContainer.innerHTML = `<a href="${source_url}" class="md-reference-link" target="_blank">参考リンク</a>`;
     } else {
-      referenceLinkContainer.innerHTML = '';
+      referenceLinkContainer.innerHTML = "";
     }
   }
 
@@ -366,23 +395,32 @@ function renderPopup(mainTerm, allResults) {
   if (mainTerm === originalMainResult) {
     relatedTerms = allResults.slice(1);
   } else {
-    relatedTerms = [originalMainResult, ...allResults.filter(t => t !== mainTerm && t !== originalMainResult)];
+    relatedTerms = [
+      originalMainResult,
+      ...allResults.filter((t) => t !== mainTerm && t !== originalMainResult),
+    ];
   }
   translationPopup._relatedTerms = relatedTerms;
 
-  const relatedTermsContainer = shadowRoot.querySelector("#md-related-terms-container");
+  const relatedTermsContainer = shadowRoot.querySelector(
+    "#md-related-terms-container"
+  );
   if (relatedTermsContainer.style.display !== "none") {
     relatedTermsContainer.innerHTML = "";
     const list = document.createElement("ul");
     list.className = "md-related-list";
 
-    relatedTerms.forEach(term => {
+    relatedTerms.forEach((term) => {
       const listItem = document.createElement("li");
-      listItem.textContent = term.word + "（" + term.abbreviation + "）";
+      if (term.abbreviation) {
+        listItem.textContent = `${term.word}（${term.abbreviation}）`;
+      } else {
+        listItem.textContent = term.word;
+      }
       listItem.className = "md-related-item";
       listItem.addEventListener("click", (event) => {
         event.stopPropagation();
-        renderPopup(term, allResults)
+        renderPopup(term, allResults);
       });
       list.appendChild(listItem);
     });
@@ -393,19 +431,21 @@ function renderPopup(mainTerm, allResults) {
     if (relatedTermsContainer.style.display === "none") {
       modal.style.maxHeight = `${INITIAL_MODAL_MAX_HEIGHT}px`;
     } else {
-      const list = relatedTermsContainer.querySelector('ul');
+      const list = relatedTermsContainer.querySelector("ul");
       if (list) {
         const relatedTermsHeight = list.offsetHeight;
-        modal.style.maxHeight = `${INITIAL_MODAL_MAX_HEIGHT + relatedTermsHeight}px`;
+        modal.style.maxHeight = `${
+          INITIAL_MODAL_MAX_HEIGHT + relatedTermsHeight
+        }px`;
       }
     }
   }
 
   const showRelatedBtn = shadowRoot.querySelector("#md-show-related-btn");
   if (relatedTerms.length > 0) {
-    if(showRelatedBtn) showRelatedBtn.style.display = "block";
+    if (showRelatedBtn) showRelatedBtn.style.display = "block";
   } else {
-    if(showRelatedBtn) showRelatedBtn.style.display = "none";
+    if (showRelatedBtn) showRelatedBtn.style.display = "none";
   }
 
   positionFooterButton();
@@ -419,12 +459,13 @@ function positionAndShowPopup() {
   const rect = lastSelectionRect;
 
   // Use the actual rendered height of the popup content, with a fallback.
-  const popupHeight = translationPopup.offsetHeight > 0 ? translationPopup.offsetHeight : 300;
+  const popupHeight =
+    translationPopup.offsetHeight > 0 ? translationPopup.offsetHeight : 300;
   const popupWidth = 400; // From CSS
-  
+
   const scrollTop = window.scrollY || document.documentElement.scrollTop;
   const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-  
+
   let top;
   let left = rect.left + scrollLeft;
 
@@ -436,11 +477,11 @@ function positionAndShowPopup() {
 
   // If there's not enough space below, and there's more space (or it's the only option) above
   if (spaceBelow < popupHeight && spaceAbove > spaceBelow) {
-      // Position above the selection
-      top = rect.top + scrollTop - popupHeight - 10;
+    // Position above the selection
+    top = rect.top + scrollTop - popupHeight - 10;
   } else {
-      // Position below the selection (default)
-      top = rect.bottom + scrollTop + 10;
+    // Position below the selection (default)
+    top = rect.bottom + scrollTop + 10;
   }
 
   // Clamp top position to be within viewport, ensuring it's not pushed off-screen
@@ -457,7 +498,7 @@ function positionAndShowPopup() {
   if (left < scrollLeft) {
     left = scrollLeft + 10;
   }
-  
+
   translationPopupHost.style.left = `${left}px`;
   translationPopupHost.style.top = `${top}px`;
 
@@ -469,9 +510,9 @@ function positionAndShowPopup() {
 }
 
 function positionFooterButton() {
-  const header = shadowRoot.querySelector('.md-modal-header');
-  const content = shadowRoot.querySelector('.md-modal-content');
-  const footerCenter = shadowRoot.querySelector('.md-footer-center');
+  const header = shadowRoot.querySelector(".md-modal-header");
+  const content = shadowRoot.querySelector(".md-modal-content");
+  const footerCenter = shadowRoot.querySelector(".md-footer-center");
 
   if (header && content && footerCenter) {
     const headerHeight = header.offsetHeight;
@@ -485,9 +526,9 @@ function positionFooterButton() {
 }
 
 function generatePopupHTML(mainTerm) {
-    const { word, abbreviation, description, is_memword, source_url } = mainTerm;
-    const closeIconUrl = chrome.runtime.getURL("images/icons8-x.svg");
-    return `
+  const { word, abbreviation, description, is_memword, source_url } = mainTerm;
+  const closeIconUrl = chrome.runtime.getURL("images/icons8-x.svg");
+  return `
     <div id="md-modalOverlay">
         <div class="md-modal">
             <div class="md-modal-header">
