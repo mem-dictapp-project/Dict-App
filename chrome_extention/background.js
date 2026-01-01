@@ -21,16 +21,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     // 選択されたテキストを取得
     const selectedText = info.selectionText;
 
-    if (selectedText.length >= 2 && selectedText.length <= 50) {
-      // tab.id が有効な場合にのみメッセージを送信
-      if (tab && tab.id != null && tab.id >= 0) {
-        // コンテンツスクリプトに選択テキストを送信して翻訳を開始
-        chrome.tabs.sendMessage(tab.id, {
-          action: "startTranslation",
-          text: selectedText,
-        });
-      }
+    // if (selectedText.length >= 2 && selectedText.length <= 50) { // Removed length check
+    if (tab && tab.id != null && tab.id >= 0) {
+      chrome.tabs.sendMessage(tab.id, {
+        action: "startTranslation",
+        text: selectedText,
+      });
     }
+    // }
   }
 });
 

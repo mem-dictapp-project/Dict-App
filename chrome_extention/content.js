@@ -55,6 +55,12 @@ const INITIAL_MODAL_MAX_HEIGHT = 240;
 let latestRequestId;
 let lastSelectionRect = null;
 
+const NO_RESULT_MESSAGES = {
+  TERM_NOT_FOUND: 'この用語はまだ辞書に登録されていないようです。<br>追加をご希望の際は、<br>以下のフォームよりリクエストいただけます。',
+  INVALID_LENGTH: '検索できるのは2～50文字までです。<br>選択範囲を調整して、再度お試しください。<br>　',
+  GENERIC_ERROR: 'エラーが発生しました。再度お試しください。'
+};
+
 // --- 初期化処理 ---
 
 // Load the initial state of icon visibility from storage
@@ -329,27 +335,46 @@ function startTranslation(text) {
   const requestId = Date.now();
   latestRequestId = requestId;
 
+  // Step 1: Get the selection rectangle immediately.
   if (selection.rangeCount > 0) {
-    const range = selection.getRangeAt(0);
-    lastSelectionRect = range.getBoundingClientRect();
-    const rect = lastSelectionRect;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-
-    let top = rect.bottom + scrollTop + 10;
-    const viewportHeight = document.documentElement.clientHeight;
-    const loaderHeight = 80; // Approximate height of the loading indicator
-
-    // If loader would go off-screen, and there's space above, place it above.
-    if (
-      rect.bottom + loaderHeight > viewportHeight &&
-      rect.top > loaderHeight
-    ) {
-      top = rect.top + scrollTop - loaderHeight - 10;
-    }
-    translationPopupHost.style.left = `${rect.left + scrollLeft}px`;
-    translationPopupHost.style.top = `${top}px`;
+    lastSelectionRect = selection.getRangeAt(0).getBoundingClientRect();
+  } else {
+    // No selection, can't position a popup. Just exit.
+    return;
   }
+  // Also check if the rect is valid, similar to the mouseup handler
+  if (lastSelectionRect.width === 0 && lastSelectionRect.height === 0) return;
+
+  // Step 2: Perform the length check.
+  if (text.length < 2 || text.length > 50) {
+    translationPopup.innerHTML = generateNoResultHTML("INVALID_LENGTH");
+    // This function handles positioning and making the popup visible.
+    // It will use the `lastSelectionRect` we just set.
+    positionAndShowPopup();
+    return; // Stop further processing
+  }
+
+  // Step 3: If length is valid, proceed with the original logic.
+  // The original logic also set the position for the loading spinner.
+  // It can use the `lastSelectionRect` we already got.
+  const rect = lastSelectionRect;
+  const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+
+  let top = rect.bottom + scrollTop + 10;
+  const viewportHeight = document.documentElement.clientHeight;
+  const loaderHeight = 80; // Approximate height of the loading indicator
+
+  // If loader would go off-screen, and there's space above, place it above.
+  if (
+    rect.bottom + loaderHeight > viewportHeight &&
+    rect.top > loaderHeight
+  ) {
+    top = rect.top + scrollTop - loaderHeight - 10;
+  }
+  translationPopupHost.style.left = `${rect.left + scrollLeft}px`;
+  translationPopupHost.style.top = `${top}px`;
+
   translationPopup.innerHTML = `
     <div class="md-loading-animation">
       <div class="md-dot-pulse"><div class="md-dot-pulse__dot"></div></div>
@@ -378,7 +403,7 @@ async function sendTextForTranslation(text, requestId) {
     renderPopup(mainResult, results);
     positionAndShowPopup();
   } else {
-    translationPopup.innerHTML = generateNoResultHTML();
+    translationPopup.innerHTML = generateNoResultHTML("TERM_NOT_FOUND");
     positionAndShowPopup();
   }
 }
@@ -476,54 +501,59 @@ function positionAndShowPopup() {
     hidePopup();
     return;
   }
-  const rect = lastSelectionRect;
 
-  // Use the actual rendered height of the popup content, with a fallback.
-  const popupHeight =
-    translationPopup.offsetHeight > 0 ? translationPopup.offsetHeight : 300;
-  const popupWidth = 400; // From CSS
-
-  const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-
-  let top;
-  let left = rect.left + scrollLeft;
-
-  const viewportWidth = document.documentElement.clientWidth;
-  const viewportHeight = document.documentElement.clientHeight;
-
-  const spaceBelow = viewportHeight - rect.bottom;
-  const spaceAbove = rect.top;
-
-  // If there's not enough space below, and there's more space (or it's the only option) above
-  if (spaceBelow < popupHeight && spaceAbove > spaceBelow) {
-    // Position above the selection
-    top = rect.top + scrollTop - popupHeight - 10;
-  } else {
-    // Position below the selection (default)
-    top = rect.bottom + scrollTop + 10;
-  }
-
-  // Clamp top position to be within viewport, ensuring it's not pushed off-screen
-  if (top < scrollTop) {
-    top = scrollTop + 10;
-  } else if (top + popupHeight > scrollTop + viewportHeight) {
-    top = scrollTop + viewportHeight - popupHeight - 10;
-  }
-
-  // --- Horizontal Positioning ---
-  if (left + popupWidth > viewportWidth + scrollLeft) {
-    left = viewportWidth + scrollLeft - popupWidth - 10;
-  }
-  if (left < scrollLeft) {
-    left = scrollLeft + 10;
-  }
-
-  translationPopupHost.style.left = `${left}px`;
-  translationPopupHost.style.top = `${top}px`;
-
+  // Make the host visible so we can measure it in the next frame.
   translationPopupHost.style.display = "block";
+
+  // Defer measurement and positioning to the next frame
   requestAnimationFrame(() => {
+    const rect = lastSelectionRect;
+
+    // Use the actual rendered height of the popup content.
+    const popupHeight = translationPopup.offsetHeight;
+    const popupWidth = 400; // From CSS
+
+    if (popupHeight === 0) {
+      // As a fallback, just hide if we can't get a height.
+      hidePopup();
+      return;
+    }
+
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+
+    let top;
+    let left = rect.left + scrollLeft;
+
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+
+    const spaceBelow = viewportHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    if (spaceBelow < popupHeight && spaceAbove > spaceBelow) {
+      top = rect.top + scrollTop - popupHeight - 10;
+    } else {
+      top = rect.bottom + scrollTop + 10;
+    }
+
+    if (top < scrollTop) {
+      top = scrollTop + 10;
+    } else if (top + popupHeight > scrollTop + viewportHeight) {
+      top = scrollTop + viewportHeight - popupHeight - 10;
+    }
+
+    if (left + popupWidth > viewportWidth + scrollLeft) {
+      left = viewportWidth + scrollLeft - popupWidth - 10;
+    }
+    if (left < scrollLeft) {
+      left = scrollLeft + 10;
+    }
+
+    translationPopupHost.style.left = `${left}px`;
+    translationPopupHost.style.top = `${top}px`;
+
+    // The host is already 'block', now add the class for opacity transition
     translationPopup.classList.add("visible");
     positionFooterButton();
   });
@@ -605,14 +635,15 @@ function generatePopupHTML(mainTerm) {
     </div>`;
 }
 
-function generateNoResultHTML() {
+function generateNoResultHTML(messageKey = "TERM_NOT_FOUND") {
+  const message = NO_RESULT_MESSAGES[messageKey] || NO_RESULT_MESSAGES.GENERIC_ERROR; // Use GENERIC_ERROR for unknown keys
   const closeIconUrl = chrome.runtime.getURL("images/icons8-x.svg");
   return `
     <div id="md-modalOverlay">
         <div class="md-modal" style="height: 150px;">
           <div class="md-modal-header" style="padding: 0;"></div>
             <div class="md-modal-content" style="padding: 20px 24px 40px;">
-                この用語はまだ辞書に登録されていないようです。<br>追加をご希望の際は、<br>以下のフォームよりリクエストいただけます。
+                ${message}
             </div>
             <div class="md-footer-center" style="opacity: 1; margin-top: 10px;">
               <div class="md-modal-footer">
