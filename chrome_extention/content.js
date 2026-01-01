@@ -56,7 +56,7 @@ let latestRequestId;
 let lastSelectionRect = null;
 
 const NO_RESULT_MESSAGES = {
-  TERM_NOT_FOUND: 'この用語はまだ辞書に登録されていないようです。<br>追加をご希望の際は、<br>以下のフォームよりリクエストいただけます。',
+  TERM_NOT_FOUND: 'この用語はまだ辞書に登録されていないようです。<br>追加をご希望の際は、<br>以下のフォームよりリクエストしてください。',
   INVALID_LENGTH: '検索できるのは2～50文字までです。<br>選択範囲を調整して、再度お試しください。<br>　',
   GENERIC_ERROR: 'エラーが発生しました。再度お試しください。'
 };
