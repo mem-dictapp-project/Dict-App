@@ -394,3 +394,33 @@
   visibility: visible;
   transform: translateX(-50%) translateY(5px); /* Adjusted for a slight lift */
 }
+
+.popup-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  /* padding: 8px; */
+}
+
+.checkbox-container {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  max-width: fit-content; /* Allow container to shrink to content width */
+  margin: 0 auto; /* Center the container itself */
+  text-align: center;
+}
+
+.checkbox-container label {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Reverted to center */
+  cursor: pointer;
+}
+
+.checkbox-label-text {
+  text-align: left;
+  margin-left: 8px; /* Space from checkbox */
+  flex-grow: 1; /* Allow text to take up available space */
+  width: 100%; /* Important for multi-line text alignment in flex container */
+}

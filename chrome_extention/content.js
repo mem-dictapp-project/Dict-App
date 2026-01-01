@@ -1,6 +1,8 @@
 // content.js
 
 // --- グローバル変数と要素の初期化 ---
+let isIconEnabled = true; // Synchronous state for icon visibility
+
 const termsJsonUrl = chrome.runtime.getURL("terms.json");
 const translationPopupHost = document.createElement("div");
 translationPopupHost.id = "md-text-translation-popup-host";
@@ -52,6 +54,14 @@ document.body.appendChild(selectionIcon);
 const INITIAL_MODAL_MAX_HEIGHT = 240;
 let latestRequestId;
 let lastSelectionRect = null;
+
+// --- 初期化処理 ---
+
+// Load the initial state of icon visibility from storage
+chrome.storage.local.get({ iconVisibility: true }, (items) => {
+  isIconEnabled = items.iconVisibility;
+});
+
 
 // --- ポップアップ内のイベント処理 ---
 translationPopup.addEventListener("click", async (event) => {
@@ -139,6 +149,15 @@ translationPopup.addEventListener("mouseout", (event) => {
 });
 
 // --- グローバルイベントリスナー ---
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === 'local' && changes.iconVisibility) {
+    isIconEnabled = changes.iconVisibility.newValue;
+    if (!isIconEnabled) {
+      hideIcon();
+    }
+  }
+});
+
 document.addEventListener("mouseup", (event) => {
   const path = event.composedPath();
   if (path.includes(translationPopupHost) || event.target === selectionIcon) {
@@ -147,7 +166,7 @@ document.addEventListener("mouseup", (event) => {
   setTimeout(() => {
     const selection = window.getSelection();
     const selectedText = selection.toString().trim();
-    if (selectedText.length >= 2 && selectedText.length <= 50) {
+    if (isIconEnabled && selectedText.length >= 2 && selectedText.length <= 50) {
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) return; // Ignore empty selections

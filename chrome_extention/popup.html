@@ -10,36 +10,44 @@
             API連携
         </label>
     </div> -->
-    <div id="root" style="width: 200px; height: 108px;"></div>
+    <div id="root" style="width: 200px; height: 180px;"></div>
 
     <template id="popup-template">
-        <div class="md-footer-float" style="margin: auto; box-shadow: none;">
-        <div class="tooltip-wrapper">
-            <a href="https://google.com" target="_blank" class="md-footer-btn">
-            <img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/>
-            </a>
-            <div class="tooltip">
-            <div class="tooltip-text">用語集を開く</div>
+        <div class="popup-controls">
+            <div class="checkbox-container">
+                <label>
+                    <input type="checkbox" id="toggle-icon-checkbox">
+                    <span class="checkbox-label-text">MEM辞書アイコンを<br>表示する</span>
+                </label>
             </div>
-        </div>
-        
-        <div class="tooltip-wrapper">
-            <a href="https://google.com" target="_blank" class="md-footer-btn">
-            <img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/>
-            </a>
-            <div class="tooltip">
-            <div class="tooltip-text">問い合わせ・<br>用語追加希望を送る</div>
+            <div class="md-footer-float" style="margin: auto; box-shadow: none;">
+                <div class="tooltip-wrapper">
+                    <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/>
+                    </a>
+                    <div class="tooltip">
+                    <div class="tooltip-text">用語集を開く</div>
+                    </div>
+                </div>
+                
+                <div class="tooltip-wrapper">
+                    <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/>
+                    </a>
+                    <div class="tooltip">
+                    <div class="tooltip-text">問い合わせ・<br>用語追加希望を送る</div>
+                    </div>
+                </div>
+                
+                <div class="tooltip-wrapper">
+                    <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/>
+                    </a>
+                    <div class="tooltip">
+                    <div class="tooltip-text">ヘルプ・使い方<br>を見る</div>
+                    </div>
+                </div>
             </div>
-        </div>
-        
-        <div class="tooltip-wrapper">
-            <a href="https://google.com" target="_blank" class="md-footer-btn">
-            <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/>
-            </a>
-            <div class="tooltip">
-            <div class="tooltip-text">ヘルプ・使い方<br>を見る</div>
-            </div>
-          </div>
         </div>
     </template>
 
