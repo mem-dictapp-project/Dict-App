@@ -609,12 +609,12 @@ function generateNoResultHTML() {
   const closeIconUrl = chrome.runtime.getURL("images/icons8-x.svg");
   return `
     <div id="md-modalOverlay">
-        <div class="md-modal" style="height: 140px;">
+        <div class="md-modal" style="height: 150px;">
           <div class="md-modal-header" style="padding: 0;"></div>
             <div class="md-modal-content" style="padding: 20px 24px 40px;">
-                この用語はまだ辞書に登録されていないようです。<br>追加をご希望の際は、以下のフォームよりリクエストいただけます。
+                この用語はまだ辞書に登録されていないようです。<br>追加をご希望の際は、<br>以下のフォームよりリクエストいただけます。
             </div>
-            <div class="md-footer-center" style="opacity: 1;">
+            <div class="md-footer-center" style="opacity: 1; margin-top: 10px;">
               <div class="md-modal-footer">
                 <div class="md-footer-float">
                   <div class="tooltip-wrapper" data-tooltip="用語集を開く">
