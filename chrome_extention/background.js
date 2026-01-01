@@ -23,10 +23,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
     // if (selectedText.length >= 2 && selectedText.length <= 50) { // Removed length check
     if (tab && tab.id != null && tab.id >= 0) {
-      chrome.tabs.sendMessage(tab.id, {
-        action: "startTranslation",
-        text: selectedText,
-      });
+      chrome.tabs.sendMessage(
+        tab.id,
+        {
+          action: "startTranslation",
+          text: selectedText,
+        },
+        { frameId: info.frameId }
+      );
     }
     // }
   }
