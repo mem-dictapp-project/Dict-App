@@ -56,9 +56,26 @@ let latestRequestId;
 let lastSelectionRect = null;
 
 const NO_RESULT_MESSAGES = {
-  TERM_NOT_FOUND: 'この用語はまだ辞書に登録されていないようです。<br>追加をご希望の際は、<br>以下のフォームよりリクエストしてください。',
-  INVALID_LENGTH: '検索できるのは2～50文字までです。<br>選択範囲を調整して、再度お試しください。<br>　',
-  GENERIC_ERROR: 'エラーが発生しました。再度お試しください。'
+  TERM_NOT_FOUND: {
+    title: "用語が見つかりません",
+    iconUrl: "images/icons8-情報-48.png",
+    message:
+      "この用語はまだ辞書に登録されていません。<br>追加をご希望の場合は、<br>右下のアイコンより用語追加希望をお送りください。",
+    borderColor: "#54BD57",
+  },
+  INVALID_LENGTH: {
+    title: "文字数エラー",
+    iconUrl: "images/icons8-エラー-64.png",
+    message:
+      "検索できるのは2～50文字までです。<br>選択範囲を調整して、再度お試しください。<br>　",
+    borderColor: "#FFA82D",
+  },
+  GENERIC_ERROR: {
+    title: "エラー",
+    iconUrl: "images/icons8-エラー-64.png",
+    message: "エラーが発生しました。再度お試しください。",
+    borderColor: "#FFA82D",
+  },
 };
 
 // --- 初期化処理 ---
@@ -636,38 +653,45 @@ function generatePopupHTML(mainTerm) {
 }
 
 function generateNoResultHTML(messageKey = "TERM_NOT_FOUND") {
-  const message = NO_RESULT_MESSAGES[messageKey] || NO_RESULT_MESSAGES.GENERIC_ERROR; // Use GENERIC_ERROR for unknown keys
+  const { title, iconUrl, message, borderColor } = NO_RESULT_MESSAGES[messageKey] || NO_RESULT_MESSAGES.GENERIC_ERROR;
   const closeIconUrl = chrome.runtime.getURL("images/icons8-x.svg");
+  const iconUrl_runtime = chrome.runtime.getURL(iconUrl);
   return `
     <div id="md-modalOverlay">
-        <div class="md-modal" style="height: 150px;">
-          <div class="md-modal-header" style="padding: 0;"></div>
-            <div class="md-modal-content" style="padding: 20px 24px 40px;">
+        <div class="md-modal" style="height: 195px;">
+          <div class="md-modal-header" style="display: flex; align-items: center;">
+            <img src="${iconUrl_runtime}" alt="icon" class="md-modal-icon"/>
+            <h2 class="md-modal-title" style="padding-bottom: 2px;">${title}</h2>
+            <button class="md-modal-close">
+              <img src="${closeIconUrl}" alt="close" width="20" height="20"/>
+            </button>
+          </div>
+            <div class="md-modal-content" style="padding: 16px 24px 40px;">
                 ${message}
             </div>
             <div class="md-footer-center" style="opacity: 1; margin-top: 10px;">
               <div class="md-modal-footer">
-                <div class="md-footer-float">
-                  <div class="tooltip-wrapper" data-tooltip="用語集を開く">
-                    <a href="https://google.com" target="_blank" class="md-footer-btn">
-                      <img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/>
-                    </a>
-                  </div>
-                  
-                  <div class="tooltip-wrapper" data-tooltip="問い合わせ・<br>用語追加希望を送る">
-                    <a href="https://google.com" target="_blank" class="md-footer-btn">
-                      <img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/>
-                    </a>
-                  </div>
-                  
-                  <div class="tooltip-wrapper" data-tooltip="ヘルプ・使い方<br>を見る">
-                    <a href="https://google.com" target="_blank" class="md-footer-btn">
-                      <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/>
-                    </a>
-                  </div>
-                  </div>
+              <div class="md-footer-float">
+                <div class="tooltip-wrapper" data-tooltip="用語集を開く">
+                  <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="24" height="24" src="https://img.icons8.com/windows/32/glossary.png" alt="glossary"/>
+                  </a>
                 </div>
-               </div>
+                
+                <div class="tooltip-wrapper" data-tooltip="問い合わせ・<br>用語追加希望を送る">
+                  <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="20" height="20" src="https://img.icons8.com/metro/26/paper-plane.png" alt="paper-plane"/>
+                  </a>
+                </div>
+                
+                <div class="tooltip-wrapper" data-tooltip="ヘルプ・使い方<br>を見る">
+                  <a href="https://google.com" target="_blank" class="md-footer-btn">
+                    <img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/help--v1.png" alt="help--v1"/>
+                  </a>
+                </div>
+                </div>
+                </div>
+              </div>
             </div>
         </div>
     </div>`;

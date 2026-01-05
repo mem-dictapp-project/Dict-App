@@ -136,6 +136,11 @@
   padding: 20px 24px 0px 24px;
   position: relative;
 }
+.md-modal-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
 .md-modal-close {
   position: absolute;
   top: 10px;
